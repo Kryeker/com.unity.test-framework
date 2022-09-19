@@ -130,7 +130,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
         {
             using (new EditorGUI.DisabledScope(m_TestListTree == null || IsBusy()))
             {
-                EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
                 {
                     using (new EditorGUI.DisabledScope(m_LatestTestResults == null))
                     {
