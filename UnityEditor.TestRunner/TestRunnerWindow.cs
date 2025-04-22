@@ -263,11 +263,13 @@ namespace UnityEditor.TestTools.TestRunner
                 });
             }
 
+#if !PLAYMODE_TEST_RUNNER
             if (PlayerSettings.playModeTestRunnerEnabled)
             {
                 PlayerSettings.playModeTestRunnerEnabled = false;
                 EditorUtility.DisplayDialog(m_GUIDisablePlaymodeTestsRunner.text, "You need to restart the editor now", "Ok");
             }
+#endif
         }
 
         internal void RebuildUIFilter()
