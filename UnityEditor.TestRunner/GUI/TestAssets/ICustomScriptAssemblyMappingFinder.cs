@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// Provides mapping information from folder paths to their corresponding Custom Script Assembly scope.
     /// </summary>
-    interface ICustomScriptAssemblyMappingFinder
+    internal interface ICustomScriptAssemblyMappingFinder
     {
         /// <summary>
         /// Finds the Custom Script Assembly associated with the provided folder path.

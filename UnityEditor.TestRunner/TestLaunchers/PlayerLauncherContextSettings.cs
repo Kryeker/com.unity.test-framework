@@ -18,7 +18,9 @@ namespace UnityEditor.TestTools.TestRunner
         private bool m_ResizableWindow;
         private bool m_ShowUnitySplashScreen;
         private string m_OldproductName;
+#if !UNITY_6000_0_OR_NEWER
         private string m_OldAotOptions;
+#endif
 #pragma warning disable 618
         private Lightmapping.GIWorkflowMode m_OldLightmapping;
 #pragma warning restore 618
@@ -68,14 +70,17 @@ namespace UnityEditor.TestTools.TestRunner
             m_FullScreenMode = PlayerSettings.fullScreenMode;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
 
+#if !UNITY_6000_0_OR_NEWER
             m_OldAotOptions = PlayerSettings.aotOptions;
             PlayerSettings.aotOptions = "nimt-trampolines=1024";
+#endif
 
             m_ResizableWindow = PlayerSettings.resizableWindow;
             PlayerSettings.resizableWindow = true;
 
             m_ShowUnitySplashScreen = PlayerSettings.SplashScreen.show;
             PlayerSettings.SplashScreen.show = false;
+            PlayerSettings.SplashScreen.showUnityLogo = false;
 
             m_OldproductName = PlayerSettings.productName;
             PlayerSettings.productName = string.Join("_", Application.productName.Split(Path.GetInvalidFileNameChars()));
@@ -100,8 +105,11 @@ namespace UnityEditor.TestTools.TestRunner
 #pragma warning restore 618
             PlayerSettings.resizableWindow = m_ResizableWindow;
             PlayerSettings.SplashScreen.show = m_ShowUnitySplashScreen;
+            PlayerSettings.SplashScreen.showUnityLogo = m_ShowUnitySplashScreen;
             PlayerSettings.productName = m_OldproductName;
+#if !UNITY_6000_0_OR_NEWER
             PlayerSettings.aotOptions = m_OldAotOptions;
+#endif
 #pragma warning disable 618
             Lightmapping.giWorkflowMode = m_OldLightmapping;
 #pragma warning restore 618

@@ -26,7 +26,7 @@ namespace UnityEditor.TestTools.TestRunner.TestRun
         public Stack<TaskInfo> taskInfoStack = new Stack<TaskInfo>();
 
         [SerializeField]
-        private TaskInfo[] savedTaskInfoStack;
+        public int taskPC;
 
         [SerializeField]
         public bool isRunning;
@@ -55,38 +55,27 @@ namespace UnityEditor.TestTools.TestRunner.TestRun
         [SerializeField]
         public TestRunnerStateSerializer testRunnerStateSerializer;
 
+        [SerializeField]
+        public EnumerableTestState enumerableTestState;
+
+        [SerializeField]
+        private TaskInfo[] savedTaskInfoStack;
+
         [NonSerialized]
         public bool isHandledByRunner;
 
         [SerializeField]
         public SceneSetup[] SceneSetup;
+        [NonSerialized]
+        public TestTaskBase[] Tasks;
 
         [SerializeField]
         public TestProgress testProgress;
 
-        [NonSerialized]
-        public TestTaskBase[] Tasks;
-
-        [NonSerialized]
         public ITest testTree;
 
         [NonSerialized]
-        public ITest currentPlayerTest;
-
-        [NonSerialized]
-        public Stack<ITestResult> childPlayerTestResults;
-
-        [SerializeField]
-        public bool hasTestThatRequiresPlayMode;
-        [SerializeField]
-        public bool hasTestThatDoesNotRequiresPlayMode;
-
-        [NonSerialized]
         public ITestFilter testFilter;
-        [NonSerialized]
-        public ITestFilter requirePlayModeFilter;
-        [NonSerialized]
-        public ITestFilter doesNotRequirePlayModeFilter;
 
         [NonSerialized]
         public TestStartedEvent TestStartedEvent;
@@ -103,8 +92,8 @@ namespace UnityEditor.TestTools.TestRunner.TestRun
         [NonSerialized]
         public ConstructDelegator ConstructDelegator;
 
-        [SerializeField]
-        public string OriginalScenePath;
+        [NonSerialized]
+        public ITestResult TestResults;
 
         [SerializeField]
         public Scene InitTestScene;
@@ -116,28 +105,28 @@ namespace UnityEditor.TestTools.TestRunner.TestRun
         public BuildPlayerOptions PlayerBuildOptions;
 
         [SerializeField]
-        public bool HasPlaymodeTestsController;
+        public PlaymodeTestsController PlaymodeTestsController;
 
         [SerializeField]
         public PlaymodeTestsControllerSettings PlayModeSettings;
 
         [SerializeField]
-        public List<TestResultSerializer> TestResults = new List<TestResultSerializer>();
-
-        [SerializeField]
         public PlatformSpecificSetup PlatformSpecificSetup;
-
-        [NonSerialized]
-        public PlayerLauncherContextSettings PlayerLauncherContextSettings;
 
         [NonSerialized]
         public RuntimePlatform? TargetRuntimePlatform;
 
         [SerializeField]
+        public EnumerableTestState RetryRepeatState;
+
+        [SerializeField]
         public SavedProjectSettings OriginalProjectSettings;
 
         [SerializeField]
-        public bool PlayerHasFinished;
+        public int UserApplicationIdleTime = -1;
+
+        [SerializeField]
+        public int UserInteractionMode = -1;
 
         public TestJobData(ExecutionSettings settings)
         {

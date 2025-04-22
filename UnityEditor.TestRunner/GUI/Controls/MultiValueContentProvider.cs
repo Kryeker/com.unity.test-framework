@@ -68,7 +68,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return m_Selected[index];
         }
 
-        bool ValidateIndexBounds(int index)
+        private bool ValidateIndexBounds(int index)
         {
             if (index < 0 || index >= Count)
             {

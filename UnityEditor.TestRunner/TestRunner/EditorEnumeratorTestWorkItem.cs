@@ -3,11 +3,9 @@ using System.Collections;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Commands;
-using NUnit.Framework.Internal.Execution;
 using UnityEngine;
 using UnityEngine.TestRunner.NUnitExtensions.Runner;
 using UnityEngine.TestTools;
-using UnityEngine.TestRunner.NUnitExtensions;
 
 namespace UnityEditor.TestTools.TestRunner
 {
@@ -79,10 +77,7 @@ namespace UnityEditor.TestTools.TestRunner
                     Context.CurrentResult.SetResult(ResultState.Error, "Returning IEnumerator but not using test attribute supporting this");
                     yield break;
                 }
-                if (Context.TestCaseTimeout == 0)
-                {
-                    Context.TestCaseTimeout = k_DefaultTimeout;
-                }
+
                 if (m_Command.Test.Method.ReturnType.IsType(typeof(IEnumerator)))
                 {
                     if (m_Command is ApplyChangesToContextCommand)
@@ -146,7 +141,7 @@ namespace UnityEditor.TestTools.TestRunner
                                 }
                                 catch (Exception e)
                                 {
-                                    Context.CurrentResult.RecordExceptionWithHint(e);
+                                    Context.CurrentResult.RecordException(e);
                                     break;
                                 }
 

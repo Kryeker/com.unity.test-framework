@@ -8,15 +8,19 @@ namespace UnityEngine.TestTools
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method)]
     public class PrebuildSetupAttribute : Attribute
     {
+        /// <summary>
+        ///  Initializes and returns an instance of PrebuildSetupAttribute by type.
+        /// </summary>
+        /// <param name="targetClass">The type of the target class.</param>
         public PrebuildSetupAttribute(Type targetClass)
         {
             TargetClass = targetClass;
         }
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="PrebuildSetupAttribute"/> class with a target class name.
         /// </summary>
-        /// <param name="targetClassName"></param>
+        /// <param name="targetClassName">The name of the class to target for finding an IPrebuildSetup implementation to run for this test.</param>
         /// <example>
         /// <code>
         /// [TestFixture]
@@ -59,7 +63,7 @@ namespace UnityEngine.TestTools
         ///     }
         /// }
         /// </code>
-        /// Tip: Use `#if UNITY_EDITOR` if you want to access Editor only APIs, but the setup/cleanup is inside a **Play Mode** assembly.
+        /// <para>Tip: Use `#if UNITY_EDITOR` if you want to access Editor only APIs, but the setup/cleanup is inside a **Play Mode** assembly.</para>
         /// </example>
         public PrebuildSetupAttribute(string targetClassName)
         {

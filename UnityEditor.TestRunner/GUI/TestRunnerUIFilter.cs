@@ -10,10 +10,6 @@ namespace UnityEditor.TestTools.TestRunner.GUI
     [Serializable]
     internal class TestRunnerUIFilter
     {
-        const AssemblyType k_DefaultAssemblyTypeSelection = AssemblyType.EditorOnly | AssemblyType.EditorAndPlatforms;
-        const RequirePlaymodeMode k_DefaultRequirePlaymodeModeSelection =
-            RequirePlaymodeMode.TestsRequiringPlaymodeInEditor | RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor;
-
         private int m_PassedCount;
         private int m_FailedCount;
         private int m_NotRunCount;
@@ -31,14 +27,6 @@ namespace UnityEditor.TestTools.TestRunner.GUI
         [SerializeField]
         public bool NotRunHidden;
 
-        [field: SerializeField]
-        public TestPlatformSelection SelectedTestPlatform { get; private set; }
-
-        [field: SerializeField]
-        public RequirePlaymodeMode SelectedTestMode { get; private set; } =
-            k_DefaultRequirePlaymodeModeSelection;
-        [field: SerializeField]
-        public AssemblyType SelectedAssemblyTypes { get; private set; } = k_DefaultAssemblyTypeSelection;
         [SerializeField]
         public string m_SearchString;
         [SerializeField]
@@ -55,26 +43,13 @@ namespace UnityEditor.TestTools.TestRunner.GUI
         public Action UpdateTestTreeRoots;
         public Action<string> SearchStringChanged;
         public Action SearchStringCleared;
-        public Action BuildPlayer;
         public bool IsFiltering
         {
             get
             {
                 return !string.IsNullOrEmpty(m_SearchString) || PassedHidden || FailedHidden || NotRunHidden ||
-                    (selectedCategories != null && selectedCategories.Length > 0) || IsFilteringTestMode();
+                    (selectedCategories != null && selectedCategories.Length > 0);
             }
-        }
-
-        bool IsFilteringTestMode()
-        {
-            return SelectedTestMode != k_DefaultRequirePlaymodeModeSelection
-                || IsAssemblyTypeFilteringPossible() && SelectedAssemblyTypes != k_DefaultAssemblyTypeSelection;
-        }
-
-        bool IsAssemblyTypeFilteringPossible()
-        {
-            var testPlatformTarget = SelectedTestPlatform.PlatformTarget;
-            return testPlatformTarget == TestPlatformTarget.Editor || testPlatformTarget == TestPlatformTarget.CustomRunner;
         }
 
         public string[] CategoryFilter
@@ -168,71 +143,15 @@ namespace UnityEditor.TestTools.TestRunner.GUI
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             {
-                var testPlatformItemProvider = BuildTestPlatformSelectionProvider();
-                TestRunnerGUI.TestPlatformSelectionDropDown(testPlatformItemProvider);
-
-                EditorGUILayout.Space();
-                EditorGUILayout.Space();
-
-                if (SelectedTestPlatform.PlatformTarget == TestPlatformTarget.Editor)
-                {
-                    var editModeEnabled = (SelectedTestMode & RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor) ==
-                        RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor;
-                    var editModeState = GUILayout.Toggle(editModeEnabled, "EditMode");
-                    if (editModeState != editModeEnabled)
-                    {
-                        SelectedTestMode = editModeState ?
-                            RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor | RequirePlaymodeMode.TestsRequiringPlaymodeInEditor :
-                            RequirePlaymodeMode.TestsRequiringPlaymodeInEditor;
-                        UpdateTestTreeRoots();
-                    }
-
-                    EditorGUILayout.Space();
-
-                    var requirePlayModeEnabled =
-                        (SelectedTestMode & RequirePlaymodeMode.TestsRequiringPlaymodeInEditor) ==
-                        RequirePlaymodeMode.TestsRequiringPlaymodeInEditor;
-                    var playModeState = GUILayout.Toggle(requirePlayModeEnabled, "PlayMode");
-                    if (playModeState != requirePlayModeEnabled)
-                    {
-                        SelectedTestMode = playModeState ?
-                            RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor | RequirePlaymodeMode.TestsRequiringPlaymodeInEditor :
-                            RequirePlaymodeMode.TestsNotRequiringPlaymodeInEditor;
-                        UpdateTestTreeRoots();
-                    }
-                    GUILayout.FlexibleSpace();
-                }
-                else
-                {
-                    GUILayout.FlexibleSpace();
-                    var exportTests = GUILayout.Button(EditorGUIUtility.TrTextContent("Export tests", "Build and export a player with tests"),
-                        EditorStyles.toolbarButton);
-                    if (exportTests)
-                    {
-                        BuildPlayer();
-                    }
-                }
+                // TODO: Tabs for editmode, playmode and player
             }
             EditorGUILayout.EndHorizontal();
         }
 
-        ISelectionDropDownContentProvider BuildTestPlatformSelectionProvider()
-        {
-            var selectableTestPlatformItems = TestRunnerUIFilterUtility.GetTestPlatformSelectables(out var separatorIndices);
-            var itemProvider = new GenericItemContentProvider<TestPlatformSelection>(SelectedTestPlatform, selectableTestPlatformItems,
-                separatorIndices, newSelection =>
-                {
-                    SelectedTestPlatform = newSelection;
-                    UpdateTestTreeRoots();
-                });
-
-            return itemProvider;
-        }
-
-        ISelectionDropDownContentProvider BuildCategorySelectionProvider()
+        private ISelectionDropDownContentProvider BuildCategorySelectionProvider()
         {
             var itemProvider = new MultiValueContentProvider<string>(availableCategories, selectedCategories,
-                (categories) =>
+                categories =>
                 {
                     selectedCategories = categories;
                     UpdateTestTreeRoots();
@@ -262,31 +181,6 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             if (SearchStringCleared != null)
             {
                 SearchStringCleared();
-            }
-
-            SelectedTestMode = k_DefaultRequirePlaymodeModeSelection;
-        }
-
-        public void ValidateTestPlatformSelection()
-        {
-            if (!IsTestPlatformAvailable(SelectedTestPlatform.PlatformTarget, SelectedTestPlatform.CustomTargetName))
-            {
-                Debug.Log("Test Runner view has been reset to show the Editor platform as the previously selected one " +
-                    $"'{SelectedTestPlatform.CustomTargetName}' is not available anymore.");
-                SelectedTestPlatform = default;
-            }
-        }
-
-        bool IsTestPlatformAvailable(TestPlatformTarget platform, string name)
-        {
-            switch (platform)
-            {
-                case TestPlatformTarget.CustomPlayer:
-                    return Array.IndexOf(TestRunnerApi.GetPlayerBuilderNames(), name) >= 0;
-                case TestPlatformTarget.CustomRunner:
-                    return Array.IndexOf(TestRunnerApi.GetCustomRunnerNames(), name) >= 0;
-                default:
-                    return true;
             }
         }
     }

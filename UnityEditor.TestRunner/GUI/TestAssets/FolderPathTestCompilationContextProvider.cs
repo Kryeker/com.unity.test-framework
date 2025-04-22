@@ -5,11 +5,11 @@ using UnityEditor.Scripting.ScriptCompilation;
 namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
 {
     /// <inheritdoc />
-    class FolderPathTestCompilationContextProvider : IFolderPathTestCompilationContextProvider
+    internal class FolderPathTestCompilationContextProvider : IFolderPathTestCompilationContextProvider
     {
         internal const string nUnitLibraryFilename = "nunit.framework.dll";
 
-        static ICustomScriptAssemblyMappingFinder s_CustomScriptAssemblyMappingFinder;
+        private static ICustomScriptAssemblyMappingFinder s_CustomScriptAssemblyMappingFinder;
 
         internal static ICustomScriptAssemblyMappingFinder CustomScriptAssemblyMappingFinder
         {

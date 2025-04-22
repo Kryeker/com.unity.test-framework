@@ -12,6 +12,7 @@ namespace UnityEngine.TestTools
     {
         /// <summary>
         /// Create a new instance of the `WaitForDomainReload` yield instruction.
+        /// </summary>
         /// <example>
         /// <code>
         /// [UnitySetUp]
@@ -23,7 +24,6 @@ namespace UnityEngine.TestTools
         /// }
         /// </code>
         /// </example>
-        /// </summary>
         public WaitForDomainReload()
         {
             ExpectDomainReload = true;
@@ -55,9 +55,9 @@ namespace UnityEngine.TestTools
             // Add this point the domain reload should have occured and stopped any further progress on the instruction.
             EditorApplication.LockReloadAssemblies();
             throw new Exception(
-                EditorUtility.scriptCompilationFailed ?
-                "Script compilation failed" :
-                "Expected domain reload, but it did not occur");
+                EditorUtility.scriptCompilationFailed
+                    ? "Script compilation failed"
+                    : "Expected domain reload, but it did not occur");
         }
     }
 }

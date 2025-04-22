@@ -1,5 +1,5 @@
+using System;
 using NUnit.Framework.Interfaces;
-using NUnit.Framework.Internal;
 
 namespace UnityEngine.TestRunner.NUnitExtensions.Filters
 {

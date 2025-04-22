@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Build;
+using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine.Rendering;
+using UnityEngine.TestRunner.NUnitExtensions.Runner;
 
 namespace UnityEditor.TestTools.TestRunner
 {
@@ -9,24 +12,60 @@ namespace UnityEditor.TestTools.TestRunner
     {
         private readonly TestSetting[] m_Settings =
         {
+#if UNITY_2021_2_OR_NEWER
+            new TestSetting<ScriptingImplementation?>(
+                settings => settings.scriptingBackend,
+                () => PlayerSettings.GetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.activeBuildTargetGroup)),
+                implementation => PlayerSettings.SetScriptingBackend(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.activeBuildTargetGroup), implementation.Value)),
+#else
             new TestSetting<ScriptingImplementation?>(
                 settings => settings.scriptingBackend,
                 () => PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.activeBuildTargetGroup),
                 implementation => PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.activeBuildTargetGroup, implementation.Value)),
+#endif
             new TestSetting<string>(
                 settings => settings.Architecture,
-                () => EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android ? PlayerSettings.Android.targetArchitectures.ToString() : null,
+                () =>
+                {
+                    switch (EditorUserBuildSettings.activeBuildTarget)
+                    {
+                        case BuildTarget.Android:
+                            return PlayerSettings.Android.targetArchitectures.ToString();
+                        case BuildTarget.StandaloneOSX:
+                            return EditorUserBuildSettings.GetPlatformSettings(BuildPipeline.GetBuildTargetName(BuildTarget.StandaloneOSX), "Architecture");
+                        default:
+                            return null;
+                    }
+                },
                 architecture =>
                 {
-                    if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
+                    if (string.IsNullOrEmpty(architecture))
+                        return;
+                    
+                    switch (EditorUserBuildSettings.activeBuildTarget)
                     {
-                        if (!string.IsNullOrEmpty(architecture))
-                        {
+                        case BuildTarget.Android:
                             var targetArchitectures = (AndroidArchitecture)Enum.Parse(typeof(AndroidArchitecture), architecture, true);
                             PlayerSettings.Android.targetArchitectures = targetArchitectures;
-                        }
+                            break;
+                        case BuildTarget.StandaloneOSX:
+                            EditorUserBuildSettings.SetPlatformSettings(BuildPipeline.GetBuildTargetName(BuildTarget.StandaloneOSX), "Architecture", architecture.ToLower());
+                            break;
                     }
                 }),
+#if UNITY_2021_2_OR_NEWER
+            new TestSetting<ApiCompatibilityLevel?>(
+                settings => settings.apiProfile,
+                () => PlayerSettings.GetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.activeBuildTargetGroup)),
+                implementation =>
+                {
+                    if (Enum.IsDefined(typeof(ApiCompatibilityLevel), implementation.Value))
+                    {
+                        PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.activeBuildTargetGroup),
+                            implementation.Value);
+                    }
+                }),
+#else
             new TestSetting<ApiCompatibilityLevel?>(
                 settings => settings.apiProfile,
                 () => PlayerSettings.GetApiCompatibilityLevel(EditorUserBuildSettings.activeBuildTargetGroup),
@@ -38,6 +77,7 @@ namespace UnityEditor.TestTools.TestRunner
                             implementation.Value);
                     }
                 }),
+#endif
             new TestSetting<bool?>(
                 settings => settings.appleEnableAutomaticSigning,
                 () => PlayerSettings.iOS.appleEnableAutomaticSigning,
@@ -70,6 +110,19 @@ namespace UnityEditor.TestTools.TestRunner
                     if (provisioningUUID != null)
                         PlayerSettings.iOS.iOSManualProvisioningProfileID = provisioningUUID;
                 }),
+            new TestSetting<string>(
+                settings => settings.iOSTargetSDK,
+                () => (PlayerSettings.iOS.sdkVersion).ToString(),
+                targetSDK =>
+                {
+                    if (targetSDK != null)
+                    {
+                        if (targetSDK == "DeviceSDK")
+                            PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
+                        else if (targetSDK == "SimulatorSDK")
+                            PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
+                    }
+                }),
             new TestSetting<ProvisioningProfileType?>(
                 settings => settings.tvOSManualProvisioningProfileType,
                 () => PlayerSettings.iOS.tvOSManualProvisioningProfileType,
@@ -86,13 +139,25 @@ namespace UnityEditor.TestTools.TestRunner
                     if (provisioningUUID != null)
                         PlayerSettings.iOS.tvOSManualProvisioningProfileID = provisioningUUID;
                 }),
-            new TestSetting<bool?>(
+            new TestSetting<string>(
+                settings => settings.tvOSTargetSDK,
+                () => (PlayerSettings.tvOS.sdkVersion).ToString(),
+                targetSDK =>
+                {
+                    if (targetSDK != null)
+                    {
+                        if (targetSDK == "DeviceSDK" || targetSDK == "Device")
+                            PlayerSettings.tvOS.sdkVersion = tvOSSdkVersion.Device;
+                        else if (targetSDK == "SimulatorSDK" || targetSDK == "Simulator")
+                            PlayerSettings.tvOS.sdkVersion = tvOSSdkVersion.Simulator;
+                    }
+                }),
+            new TestSetting<bool>(
                 settings => settings.autoGraphicsAPIs,
                 () => PlayerSettings.GetUseDefaultGraphicsAPIs(EditorUserBuildSettings.activeBuildTarget),
                 autoGraphicsAPIs =>
                 {
-                    if (autoGraphicsAPIs.HasValue)
-                        PlayerSettings.SetUseDefaultGraphicsAPIs(EditorUserBuildSettings.activeBuildTarget, autoGraphicsAPIs.Value);
+                    PlayerSettings.SetUseDefaultGraphicsAPIs(EditorUserBuildSettings.activeBuildTarget, autoGraphicsAPIs);
                 }),
             new TestSetting<string[]>(
                 settings => settings.playerGraphicsAPIs,
@@ -104,7 +169,7 @@ namespace UnityEditor.TestTools.TestRunner
                         var graphicsAPIs = new List<GraphicsDeviceType>();
                         foreach (var graphicsAPI in playerGraphicsAPIs)
                         {
-                            if (GraphicsDeviceType.TryParse(graphicsAPI, true, out GraphicsDeviceType playerGraphicsAPI))
+                            if (Enum.TryParse(graphicsAPI, true, out GraphicsDeviceType playerGraphicsAPI))
                                 graphicsAPIs.Add(playerGraphicsAPI);
                         }
 
@@ -112,6 +177,56 @@ namespace UnityEditor.TestTools.TestRunner
                             PlayerSettings.SetGraphicsAPIs(EditorUserBuildSettings.activeBuildTarget, graphicsAPIs.ToArray());
                     }
                 }),
+            new TestSetting<bool?>(
+                settings => settings.androidBuildAppBundle,
+                () => EditorUserBuildSettings.buildAppBundle,
+                androidAppBundle =>
+                {
+                    EditorUserBuildSettings.buildAppBundle = androidAppBundle.Value;
+#if UNITY_2023_1_OR_NEWER
+                    PlayerSettings.Android.splitApplicationBinary = androidAppBundle.Value;
+#else
+                    PlayerSettings.Android.useAPKExpansionFiles = androidAppBundle.Value;
+#endif
+                }),
+            new TestSetting<bool?>(
+                settings => settings.featureFlags.requiresSplashScreen,
+                () => PlayerSettings.SplashScreen.show,
+                requiresSplashScreen =>
+                {
+                    if (requiresSplashScreen != null)
+                    {
+                        PlayerSettings.SplashScreen.show = requiresSplashScreen.Value;
+                    }
+                }),
+            new TestSetting<bool?>(
+                settings => settings.featureFlags.requiresSplashScreen,
+                () => PlayerSettings.SplashScreen.showUnityLogo,
+                requiresSplashScreen =>
+                {
+                    if (requiresSplashScreen != null)
+                    {
+                        PlayerSettings.SplashScreen.showUnityLogo = requiresSplashScreen.Value;
+                    }
+                }),
+#if UNITY_2023_2_OR_NEWER
+            new TestSetting<WebGLClientBrowserType?>(
+                settings => settings.webGLClientBrowserType,
+                () => EditorUserBuildSettings.webGLClientBrowserType,
+                browserType =>
+                {
+                    if (browserType != null)
+                        EditorUserBuildSettings.webGLClientBrowserType = browserType.Value;
+                }),
+            new TestSetting<string>(
+                settings => settings.webGLClientBrowserPath,
+                () => EditorUserBuildSettings.webGLClientBrowserPath,
+                browserPath =>
+                {
+                    if (!string.IsNullOrEmpty(browserPath))
+                        EditorUserBuildSettings.webGLClientBrowserPath = browserPath;
+                }),
+#endif
         };
 
         private bool m_Disposed;
@@ -126,10 +241,19 @@ namespace UnityEditor.TestTools.TestRunner
         public string appleDeveloperTeamID { get; set; }
         public ProvisioningProfileType? iOSManualProvisioningProfileType { get; set; }
         public string iOSManualProvisioningProfileID { get; set; }
+        public string iOSTargetSDK { get; set; }
         public ProvisioningProfileType? tvOSManualProvisioningProfileType { get; set; }
         public string tvOSManualProvisioningProfileID { get; set; }
+        public string tvOSTargetSDK { get; set; }
         public string[] playerGraphicsAPIs { get; set; }
-        public bool? autoGraphicsAPIs { get; set; }
+        public bool autoGraphicsAPIs { get; set; }
+        public bool? androidBuildAppBundle { get; set; }
+#if UNITY_2023_2_OR_NEWER
+        public WebGLClientBrowserType? webGLClientBrowserType { get; set; }
+        public string webGLClientBrowserPath { get; set; }
+#endif
+        public IgnoreTest[] ignoreTests { get; set; }
+        public FeatureFlags featureFlags { get; set; } = new FeatureFlags();
 
         public void Dispose()
         {

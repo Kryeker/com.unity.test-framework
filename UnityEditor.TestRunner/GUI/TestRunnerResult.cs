@@ -49,6 +49,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
 
             if (ignoredOrSkipped)
             {
+                resultStatus = ResultStatus.Skipped;
                 messages = test.SkipReason;
             }
             if (notRunnable)
@@ -92,6 +93,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             }
             if (childrenResult.Any(x => x.resultStatus == ResultStatus.Inconclusive)) resultStatus = ResultStatus.Inconclusive;
             if (childrenResult.Any(x => x.resultStatus == ResultStatus.Failed)) resultStatus = ResultStatus.Failed;
+            if (childrenResult.Any(x => x.resultStatus == ResultStatus.NotRun)) resultStatus = ResultStatus.NotRun;
             UpdateParentResult(results);
         }
 
@@ -105,7 +107,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             }
             else
             {
-                results.Add(parentUniqueId, new List<TestRunnerResult>() {this});
+                results.Add(parentUniqueId, new List<TestRunnerResult> {this});
             }
         }
 
@@ -123,7 +125,9 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             description = result.description;
             notOutdated = result.notOutdated;
             if (m_OnResultUpdate != null)
+            {
                 m_OnResultUpdate(this);
+            }
         }
 
         public void SetResultChangedCallback(Action<TestRunnerResult> resultUpdated)

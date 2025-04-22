@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -10,8 +11,8 @@ namespace UnityEngine.TestTools
     /// </summary>
     public class ConditionalIgnoreAttribute : NUnitAttribute, IApplyToTest
     {
-        string m_ConditionKey;
-        string m_IgnoreReason;
+        private string m_ConditionKey;
+        private string m_IgnoreReason;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionalIgnoreAttribute"/> class with a condition key.
@@ -47,8 +48,8 @@ namespace UnityEngine.TestTools
         /// <param name="key">The key to ignore tests for.</param>
         /// <param name="value">A boolean value indicating whether the tests should be ignored.</param>
         /// <example>
-        /// An example in which tests are ignored in the Mac editor only.
         /// <code>
+        /// // An example in which tests are ignored in the Mac editor only.
         /// using UnityEditor;
         /// using NUnit.Framework;
         /// using UnityEngine.TestTools;

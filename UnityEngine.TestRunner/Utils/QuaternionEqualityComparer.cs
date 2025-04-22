@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace UnityEngine.TestTools.Utils
@@ -11,8 +12,8 @@ namespace UnityEngine.TestTools.Utils
     /// </summary>
     public class QuaternionEqualityComparer : IEqualityComparer<Quaternion>
     {
-        internal const float k_DefaultError = 0.00001f;
-        internal readonly float AllowedError;
+        private const float k_DefaultError = 0.00001f;
+        private readonly float AllowedError;
 
         private static readonly QuaternionEqualityComparer m_Instance = new QuaternionEqualityComparer();
         /// <summary>
@@ -39,7 +40,7 @@ namespace UnityEngine.TestTools.Utils
         /// <param name="actual">Actual Quaternion value to test</param>
         /// <returns>True if the quaternion are equals, false otherwise.</returns>
         /// <example>
-        /// The following example shows how to verify if two Quaternion are equals
+        /// <para>The following example shows how to verify if two Quaternion are equals</para>
         /// <code>
         /// [TestFixture]
         /// public class QuaternionTest

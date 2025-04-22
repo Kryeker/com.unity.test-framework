@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using UnityEngine.TestTools.Logging;
 
@@ -14,6 +15,7 @@ namespace UnityEngine.TestTools
     {
         /// <summary>
         /// Verifies that a log message of a specified type appears in the log. A test won't fail from an expected error, assertion, or exception log message. It does fail if an expected message does not appear in the log.
+        /// If multiple LogAssert.Expect are used to expect multiple messages, they are expected to be logged in that order.
         /// </summary>
         /// <param name="type">A type of log to expect. It can take one of the [LogType enum](https://docs.unity3d.com/ScriptReference/LogType.html) values.</param>
         /// <param name="message">A string value that should equate to the expected message.</param>
@@ -39,7 +41,7 @@ namespace UnityEngine.TestTools
         /// </example>
         public static void Expect(LogType type, string message)
         {
-            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch() { LogType = type, Message = message });
+            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch { LogType = type, Message = message });
         }
 
         /// <summary>
@@ -49,7 +51,40 @@ namespace UnityEngine.TestTools
         /// <param name="message">A regular expression pattern to match the expected message.</param>
         public static void Expect(LogType type, Regex message)
         {
-            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch() { LogType = type, MessageRegex = message });
+            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch { LogType = type, MessageRegex = message });
+        }
+
+        /// <summary>
+        /// Verifies that a log message of any type appears in the log. A test won't fail from an expected error, assertion, or exception log message. It does fail if an expected message does not appear in the log.
+        /// If multiple LogAssert.Expect are used to expect multiple messages, they are expected to be logged in that order.
+        /// </summary>
+        /// <param name="message">A string value that should equate to the expected message.</param>
+        /// <example>
+        /// <code>
+        /// [Test]
+        /// public void LogAssertExample()
+        /// {
+        ///     // Expect a log entry of any kind with this message
+        ///     LogAssert.Expect("Log message");
+        ///
+        ///     // Logging the message does not cause the test to fail
+        ///     Debug.LogError("Log message");
+        /// }
+        ///
+        /// </code>
+        /// </example>
+        public static void Expect(string message)
+        {
+            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch { LogType = null, Message = message });
+        }
+
+        /// <summary>
+        /// Verifies that a log message of any type appears in the log. A test won't fail from an expected error, assertion, or exception log message. It does fail if an expected message does not appear in the log.
+        /// </summary>
+        /// <param name="message">A regular expression pattern to match the expected message.</param>
+        public static void Expect(Regex message)
+        {
+            LogScope.Current.ExpectedLogs.Enqueue(new LogMatch { LogType = null, MessageRegex = message });
         }
 
         /// <summary>
@@ -61,7 +96,7 @@ namespace UnityEngine.TestTools
         }
 
         /// <summary>Set this property to `true` to prevent unexpected error log messages from triggering an assertion. By default, it is `false`.</summary>
-        /// <returns>The value of the ignoreFailingMessages boolean property.</returns>
+        /// <value>The value of the ignoreFailingMessages boolean property.</value>
         public static bool ignoreFailingMessages
         {
             get

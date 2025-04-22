@@ -7,12 +7,12 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// A flag enum content provider to be used with the <see cref="SelectionDropDown" /> control.
     /// </summary>
     /// <typeparam name="T">The flag enum type.</typeparam>
-    class FlagEnumContentProvider<T> : ISelectionDropDownContentProvider where T : Enum
+    internal class FlagEnumContentProvider<T> : ISelectionDropDownContentProvider where T : Enum
     {
-        readonly Action<T> m_ValueChangedCallback;
-        readonly T[] m_Values;
+        private readonly Action<T> m_ValueChangedCallback;
+        private readonly T[] m_Values;
         internal Func<string, string> DisplayNameGenerator = ObjectNames.NicifyVariableName;
-        T m_CurrentValue;
+        private T m_CurrentValue;
 
         /// <summary>
         /// Creates a new instance of the <see cref="FlagEnumContentProvider{T}" /> class.
@@ -74,7 +74,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             }
         }
 
-        bool ChangeValue(T flag)
+        private bool ChangeValue(T flag)
         {
             var value = flag;
             var count = GetSetCount();
@@ -94,17 +94,17 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return true;
         }
 
-        bool IsSet(T flag)
+        private bool IsSet(T flag)
         {
             return FlagEnumUtility.HasFlag(m_CurrentValue, flag);
         }
 
-        int GetSetCount()
+        private int GetSetCount()
         {
             return BitUtility.GetCardinality((int)(object)m_CurrentValue);
         }
 
-        bool ValidateIndexBounds(int index)
+        private bool ValidateIndexBounds(int index)
         {
             if (index < 0 || index >= Count)
             {

@@ -1,14 +1,12 @@
-using System;
-
 namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
 {
     /// <inheritdoc />
-    class ActiveFolderTemplateAssetCreator : IActiveFolderTemplateAssetCreator
+    internal class ActiveFolderTemplateAssetCreator : IActiveFolderTemplateAssetCreator
     {
         /// <inheritdoc />
         public string GetActiveFolderPath()
         {
-            return ProjectWindowUtil.GetActiveFolderPath();
+            return AssetDatabase.GetAssetPath(Selection.activeObject);
         }
 
         /// <inheritdoc />

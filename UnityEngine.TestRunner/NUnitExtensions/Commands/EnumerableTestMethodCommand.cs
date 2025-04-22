@@ -1,12 +1,8 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Commands;
-using NUnit.Framework.Internal.Execution;
-using UnityEngine.TestRunner.NUnitExtensions;
 using Unity.Profiling;
 using UnityEngine.TestRunner.NUnitExtensions.Runner;
 using UnityEngine.TestTools.TestRunner;
@@ -25,6 +21,7 @@ namespace UnityEngine.TestTools
 
         public IEnumerable ExecuteEnumerable(ITestExecutionContext context)
         {
+            var unityContext = (UnityTestExecutionContext) context;
             yield return null;
 
             IEnumerator currentExecutingTestEnumerator;
@@ -34,7 +31,7 @@ namespace UnityEngine.TestTools
             }
             catch (Exception ex)
             {
-                context.CurrentResult.RecordExceptionWithHint(ex);
+                context.CurrentResult.RecordException(ex);
                 yield break;
             }
 
@@ -46,7 +43,7 @@ namespace UnityEngine.TestTools
 
                 var enumerator = testEnumeraterYieldInstruction.Execute();
 
-                var executingEnumerator = ExecuteEnumerableAndRecordExceptions(enumerator, new EnumeratorContext(context));
+                var executingEnumerator = ExecuteEnumerableAndRecordExceptions(enumerator, new EnumeratorContext(context), unityContext);
                 while (AdvanceEnumerator(executingEnumerator))
                 {
                     yield return executingEnumerator.Current;
@@ -67,7 +64,7 @@ namespace UnityEngine.TestTools
                 return enumerator.MoveNext();
         }
 
-        private IEnumerator ExecuteEnumerableAndRecordExceptions(IEnumerator enumerator, EnumeratorContext context)
+        private IEnumerator ExecuteEnumerableAndRecordExceptions(IEnumerator enumerator, EnumeratorContext context, UnityTestExecutionContext unityContext)
         {
             while (true)
             {
@@ -76,11 +73,13 @@ namespace UnityEngine.TestTools
                     break;
                 }
 
+                bool executionDone = false;
                 try
                 {
-                    if (!enumerator.MoveNext())
+                    executionDone = !enumerator.MoveNext();
+                    if (unityContext.TestMode == TestPlatform.PlayMode && enumerator.Current is IEditModeTestYieldInstruction)
                     {
-                        break;
+                        throw new Exception($"PlayMode test are not allowed to yield {enumerator.Current.GetType().Name}");
                     }
                 }
                 catch (Exception ex)
@@ -89,10 +88,20 @@ namespace UnityEngine.TestTools
                     break;
                 }
 
-                if (enumerator.Current is IEnumerator)
+                if (unityContext.HasTimedOut())
                 {
-                    var current = (IEnumerator)enumerator.Current;
-                    yield return ExecuteEnumerableAndRecordExceptions(current, context);
+                    unityContext.CurrentResult.RecordException(new UnityTestTimeoutException(unityContext.TestCaseTimeout));
+                    yield return new RestoreTestContextAfterDomainReload(); // If this is right after a domain reload, give the editor a chance to restore.
+                    yield break;
+                }
+                if (executionDone)
+                {
+                    break;
+                }
+
+                if (enumerator.Current is IEnumerator nestedEnumerator)
+                {
+                    yield return ExecuteEnumerableAndRecordExceptions(nestedEnumerator, context, unityContext);
                 }
                 else
                 {
@@ -122,11 +131,10 @@ namespace UnityEngine.TestTools
                 {
                     return;
                 }
-                m_Context.CurrentResult.RecordExceptionWithHint(ex);
+                m_Context.CurrentResult.RecordException(ex);
                 ExceptionWasRecorded = true;
             }
         }
-
 
         public override TestResult Execute(ITestExecutionContext context)
         {

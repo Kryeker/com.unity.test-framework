@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -95,10 +94,14 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             if (string.IsNullOrEmpty(filePath))
                 return string.Empty;
 
+#if UNITY_2021_3_OR_NEWER
+            return Path.GetRelativePath(Directory.GetCurrentDirectory(), filePath);
+#else
             filePath = Paths.UnifyDirectorySeparator(filePath);
             var length = Paths.UnifyDirectorySeparator(Application.dataPath).Length - "Assets".Length;
 
             return filePath.Substring(length);
+#endif
         }
 
         public bool OpenScriptInExternalEditor(string stacktrace)

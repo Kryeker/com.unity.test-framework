@@ -1,6 +1,6 @@
 # Workflow: Creating test assemblies 
 
-Unity Test Framework looks for tests in a **Test Assembly**, which is any assembly that references Nunit.
+UTF looks for tests in a **Test Assembly**, which is any assembly that references Nunit.
 
 The Test Runner UI helps you set up test assemblies:
 
@@ -19,9 +19,9 @@ This creates a *Tests* folder in your project Assets with a corresponding `.asmd
 
 ![New Test folder and assembly file](./images/test-assembly-folder.png)
 
-Click on the assembly definition file to inspect it in the **Inspector** window. You'll see that it has references to **nunit.framework.dll***,* **UnityEngine.TestRunner,** and **UnityEditor.TestRunner** assemblies. This tells Unity Test Framework that this is a test assembly. 
+Click on the assembly definition file to inspect it in the **Inspector** window. You'll see that it has references to **nunit.framework.dll***,* **UnityEngine.TestRunner,** and **UnityEditor.TestRunner** assemblies. This tells UTF that this is a test assembly.
 
-The checkbox selections under **Platforms** determine which platforms the test assembly can run on. Assemblies created through the **Test Runner** target the **Editor** only by default. **Any Platform** or a specific platform other than **Editor** makes the tests you add run in Play Mode by default. 
+The checkbox selections under **Platforms** determine which platforms the test assembly can run on. Assemblies created through the **Test Runner** target the **Editor** only by default. **Any Platform** or a specific platform other than **Editor** makes it possible to run any Play Mode tests in the assembly on standalone Players for the additional platforms.
 
 ![Assembly definition import settings](./images/import-settings.png)
 
@@ -29,4 +29,4 @@ The checkbox selections under **Platforms** determine which platforms the test a
 
 You can repeat the steps above as many times as you like to create additional Test Assemblies. The first Test Assembly folder you create is named *Tests* by default and subsequent ones are named *Tests 1*, *Tests 2*, and so on. Remember that you can always rename the assemblies but each assembly name must be unique.
 
-> **Note**: Changing the file name of an assembly definition file does not affect the value of the **Name** property in the file. Use the **Inspector** window or edit the .asmdef direclty in a text editor to change the name property.
+> **Note**: Changing the file name of the assembly definition file does not affect the value of the **Name** property in the file. Use the **Inspector** window or edit the .asmdef direclty in a text editor to make sure the name property is properly changed.

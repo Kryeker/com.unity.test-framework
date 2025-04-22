@@ -6,7 +6,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// Provides a wrapper for a Custom Script Assembly and exposes its basic properties.
     /// </summary>
-    interface ICustomScriptAssembly
+    internal interface ICustomScriptAssembly
     {
         /// <summary>
         /// Checks if the Custom Script Assembly is referencing the provided precompiled library.

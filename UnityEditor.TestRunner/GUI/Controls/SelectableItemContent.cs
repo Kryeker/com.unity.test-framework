@@ -6,9 +6,9 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// A default implementation of the <see cref="ISelectableItem{T}" /> interface.
     /// </summary>
     /// <typeparam name="T">The type of the value represented by this content element.</typeparam>
-    class SelectableItemContent<T> : ISelectableItem<T>
+    internal class SelectableItemContent<T> : ISelectableItem<T>
     {
-        readonly string m_DisplayName;
+        private readonly string m_DisplayName;
 
         /// <summary>
         /// Creates a new instance of the <see cref="SelectableItemContent{T}" /> class

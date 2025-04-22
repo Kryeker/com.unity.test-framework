@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.TestTools.TestRunner;
+using Object = UnityEngine.Object;
 
 namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks
 {
@@ -30,14 +31,17 @@ namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks
 
             testJobData.InitTestScene = EditorSceneManager.NewScene(m_SceneSetup, NewSceneMode.Single);
 
+            /* This code from 2.0 is likely not needed and can be removed once backporting has finished.
             while (PlaymodeTestsController.IsControllerOnScene())
             {
                 var gameObject = PlaymodeTestsController.GetController().gameObject;
-                GameObject.DestroyImmediate(gameObject);
+                Object.DestroyImmediate(gameObject);
             }
+            */
 
             var settings = PlaymodeTestsControllerSettings.CreateRunnerSettings(testJobData.executionSettings.filters
-                .Select(filter => filter.ToRuntimeTestRunnerFilter(false)).ToArray());
+                .Select(filter => filter.ToRuntimeTestRunnerFilter(testJobData.executionSettings.runSynchronously)).ToArray(), testJobData.executionSettings.orderedTestNames,
+                testJobData.executionSettings.randomOrderSeed, testJobData.executionSettings.featureFlags, testJobData.executionSettings.retryCount, testJobData.executionSettings.repeatCount, IsAutomated());
 
             if (m_includeTestController)
             {
@@ -49,11 +53,10 @@ namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks
 
                 var runner = go.AddComponent<PlaymodeTestsController>();
                 runner.AssembliesWithTests = editorLoadedTestAssemblyProvider
-                    .GetAssemblies()
-                    .Where(a => a.TestPlatform == TestPlatform.PlayMode)
-                    .Select(x => x.AssemblyWrapper.Assembly.GetName().Name).ToList();
+                    .GetAssembliesGroupedByType(TestPlatform.PlayMode).Select(x => x.Assembly.GetName().Name)
+                    .ToList();
                 runner.settings = settings;
-                testJobData.HasPlaymodeTestsController = true;
+                testJobData.PlaymodeTestsController = runner;
             }
 
             testJobData.PlayModeSettings = settings;

@@ -6,12 +6,12 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// <summary>
     /// A DropDown editor control accepting <see cref="ISelectionDropDownContentProvider" />-based content providers.
     /// </summary>
-    class SelectionDropDown : PopupWindowContent
+    internal class SelectionDropDown : PopupWindowContent
     {
-        static readonly int k_ControlId = typeof(SelectionDropDown).GetHashCode();
-        readonly ISelectionDropDownContentProvider m_ContentProvider;
-        readonly Vector2 m_ContentSize;
-        Vector2 m_ScrollPosition = Vector2.zero;
+        private static readonly int k_ControlId = typeof(SelectionDropDown).GetHashCode();
+        private readonly ISelectionDropDownContentProvider m_ContentProvider;
+        private readonly Vector2 m_ContentSize;
+        private Vector2 m_ScrollPosition = Vector2.zero;
 
         /// <summary>
         /// Creates a new instance of the <see cref="SelectionDropDown" /> editor control.
@@ -101,7 +101,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             UnityEngine.GUI.EndScrollView();
         }
 
-        float CalculateContentWidth()
+        private float CalculateContentWidth()
         {
             var maxItemWidth = 0f;
             for (var i = 0; i < m_ContentProvider.Count; ++i)
@@ -114,14 +114,14 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return maxItemWidth;
         }
 
-        float CalculateContentHeight()
+        private float CalculateContentHeight()
         {
             return m_ContentProvider.Count * Styles.LineHeight
                 + m_ContentProvider.SeparatorIndices.Length * Styles.SeparatorHeight
                 + Styles.TopMargin + Styles.BottomMargin;
         }
 
-        float DrawSeparator(int i, Rect itemRect)
+        private float DrawSeparator(int i, Rect itemRect)
         {
             if (Array.IndexOf(m_ContentProvider.SeparatorIndices, i) < 0)
             {
@@ -133,7 +133,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return Styles.SeparatorHeight;
         }
 
-        static Rect GetSeparatorRect(Rect itemRect)
+        private static Rect GetSeparatorRect(Rect itemRect)
         {
             var x = itemRect.x + Styles.SeparatorMargin;
             var y = itemRect.y + itemRect.height + Styles.SeparatorHeight * 0.15f;
@@ -143,7 +143,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return new Rect(x, y, width, height);
         }
 
-        static void DrawRect(Rect rect, Color color)
+        private static void DrawRect(Rect rect, Color color)
         {
             var originalColor = UnityEngine.GUI.color;
             UnityEngine.GUI.color *= color;
@@ -151,7 +151,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             UnityEngine.GUI.color = originalColor;
         }
 
-        static class Styles
+        private static class Styles
         {
             public const float LineHeight = EditorGUI.kSingleLineHeight;
             public const float TopMargin = 3f;

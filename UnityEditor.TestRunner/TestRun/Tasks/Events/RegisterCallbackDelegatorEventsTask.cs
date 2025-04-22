@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEditor.TestTools.TestRunner.Api;
 
@@ -14,7 +15,7 @@ namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks.Events
 
         public override IEnumerator Execute(TestJobData testJobData)
         {
-            ApiCallbacksDelegator.SetTestRunFilter(testJobData.testFilter);
+            ApiCallbacksDelegator.SetTestRunFilter(testJobData.executionSettings.BuildNUnitFilter());
             testJobData.RunStartedEvent.AddListener(ApiCallbacksDelegator.RunStarted);
             testJobData.TestStartedEvent.AddListener(ApiCallbacksDelegator.TestStarted);
             testJobData.TestFinishedEvent.AddListener(ApiCallbacksDelegator.TestFinished);

@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace UnityEditor.TestTools.TestRunner.GUI
 {
-    static class TestRunnerGUI
+    internal static class TestRunnerGUI
     {
-        static Styles s_Styles;
-        static Styles Style => s_Styles ?? (s_Styles = new Styles());
+        private static Styles s_Styles;
+        private static Styles Style => s_Styles ?? (s_Styles = new Styles());
 
         internal static void TestPlatformSelectionDropDown(ISelectionDropDownContentProvider contentProvider)
         {
@@ -30,7 +30,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             SelectionDropDown(contentProvider, Style.CategoryButtonContent, GUILayout.Width(Style.CategoryButtonWidth));
         }
 
-        static void SelectionDropDown(ISelectionDropDownContentProvider listContentProvider, GUIContent buttonContent,
+        private static void SelectionDropDown(ISelectionDropDownContentProvider listContentProvider, GUIContent buttonContent,
             params GUILayoutOption[] options)
         {
             var rect = EditorGUILayout.GetControlRect(false, EditorGUI.kSingleLineHeight, Styles.DropdownButton, options);
@@ -43,7 +43,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             PopupWindow.Show(rect, selectionDropDown);
         }
 
-        class Styles
+        private class Styles
         {
             public static readonly GUIStyle DropdownButton = EditorStyles.toolbarDropDown;
             public readonly string TestPlatformButtonString = "Run Location:";

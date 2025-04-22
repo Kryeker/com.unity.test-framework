@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// <summary>
     /// Provides methods for dealing with common bit operations.
     /// </summary>
-    static class BitUtility
+    internal static class BitUtility
     {
         /// <summary>
         /// Evaluates the cardinality of an integer, treating the value as a bit set.

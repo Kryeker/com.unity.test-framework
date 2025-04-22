@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// Provides an interface for creating test assets from templates.
     /// </summary>
-    interface ITestScriptAssetsCreator
+    internal interface ITestScriptAssetsCreator
     {
         /// <summary>
         /// Creates a new folder in the active folder path with an associated Test Script Assembly definition.

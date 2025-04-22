@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,7 +9,7 @@ namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks
     {
         public override IEnumerator Execute(TestJobData testJobData)
         {
-            testJobData.OriginalProjectSettings = new TestJobData.SavedProjectSettings()
+            testJobData.OriginalProjectSettings = new TestJobData.SavedProjectSettings
             {
                 consoleErrorPaused = ConsoleWindow.GetConsoleErrorPause(),
                 runInBackgroundValue = Application.runInBackground

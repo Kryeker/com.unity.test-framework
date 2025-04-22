@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// <summary>
     /// Defines a content provider that can be used with the <see cref="SelectionDropDown" /> control.
     /// </summary>
-    interface ISelectionDropDownContentProvider
+    internal interface ISelectionDropDownContentProvider
     {
         /// <summary>
         /// The total number of items to display.

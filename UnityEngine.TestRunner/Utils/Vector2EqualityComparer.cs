@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace UnityEngine.TestTools.Utils
@@ -12,8 +13,8 @@ namespace UnityEngine.TestTools.Utils
     /// </summary>
     public class Vector2EqualityComparer : IEqualityComparer<Vector2>
     {
-        internal const float k_DefaultError = 0.0001f;
-        internal readonly float AllowedError;
+        private const float k_DefaultError = 0.0001f;
+        private readonly float AllowedError;
 
         private static readonly Vector2EqualityComparer m_Instance = new Vector2EqualityComparer();
 
@@ -31,7 +32,7 @@ namespace UnityEngine.TestTools.Utils
         /// <param name="error">This value identifies the calculation error allowed.</param>
         public Vector2EqualityComparer(float error)
         {
-            this.AllowedError = error;
+            AllowedError = error;
         }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace UnityEngine.TestTools.Utils
         /// <param name="actual">The actual Vector2 to test</param>
         /// <returns>True if the vectors are equals, false otherwise.</returns>
         /// <example>
-        /// The following example shows how to verify if two Vector2 are equals
+        /// <para>The following example shows how to verify if two Vector2 are equals</para>
         ///<code>
         ///[TestFixture]
         /// public class Vector2Test

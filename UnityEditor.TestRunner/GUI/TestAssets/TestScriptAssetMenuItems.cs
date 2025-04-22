@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// The set of Menu Items dedicated to creating test assets: Test Scripts and Custom Test Assemblies.
     /// </summary>
-    static class TestScriptAssetMenuItems
+    internal static class TestScriptAssetMenuItems
     {
         internal const string addNewFolderWithTestAssemblyDefinitionMenuItem = "Assets/Create/Testing/Tests Assembly Folder";
         internal const string addNewTestScriptMenuItem = "Assets/Create/Testing/C# Test Script";

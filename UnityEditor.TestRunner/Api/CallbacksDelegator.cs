@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text;
 using NUnit.Framework.Interfaces;
-using NUnit.Framework.Internal;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.TestRunner.TestLaunchers;
@@ -40,22 +39,26 @@ namespace UnityEditor.TestTools.TestRunner.Api
         {
             m_AdaptorFactory.ClearResultsCache();
             var testRunnerTestsToRun = m_AdaptorFactory.Create(testsToRun, m_TestRunFilter);
-            RunStarted(testRunnerTestsToRun);
+            TryInvokeAllCallbacks(callbacks => callbacks.RunStarted(testRunnerTestsToRun));
         }
 
-        public void RunStarted(ITestAdaptor testRunnerTestsToRun)
+        public void RunStartedRemotely(byte[] testsToRunData)
         {
-            TryInvokeAllCallbacks(callbacks => callbacks.RunStarted(testRunnerTestsToRun));
+            var testData = Deserialize<RemoteTestResultDataWithTestData>(testsToRunData);
+            var testsToRun = m_AdaptorFactory.BuildTree(testData);
+            TryInvokeAllCallbacks(callbacks => callbacks.RunStarted(testsToRun));
         }
 
         public void RunFinished(ITestResult testResults)
         {
             var testResult = m_AdaptorFactory.Create(testResults);
-            RunFinished(testResult);
+            TryInvokeAllCallbacks(callbacks => callbacks.RunFinished(testResult));
         }
 
-        public void RunFinished(ITestResultAdaptor testResult)
+        public void RunFinishedRemotely(byte[] testResultsData)
         {
+            var remoteTestResult = Deserialize<RemoteTestResultDataWithTestData>(testResultsData);
+            var testResult = m_AdaptorFactory.Create(remoteTestResult.results.First(), remoteTestResult);
             TryInvokeAllCallbacks(callbacks => callbacks.RunFinished(testResult));
         }
 
@@ -75,22 +78,27 @@ namespace UnityEditor.TestTools.TestRunner.Api
         public void TestStarted(ITest test)
         {
             var testRunnerTest = m_AdaptorFactory.Create(test);
-            TestStarted(testRunnerTest);
+            TryInvokeAllCallbacks(callbacks => callbacks.TestStarted(testRunnerTest));
         }
 
-        public void TestStarted(ITestAdaptor testRunnerTest)
+        public void TestStartedRemotely(byte[] testStartedData)
         {
-            TryInvokeAllCallbacks(callbacks => callbacks.TestStarted(testRunnerTest));
+            var testData = Deserialize<RemoteTestResultDataWithTestData>(testStartedData);
+            var testsToRun = m_AdaptorFactory.BuildTree(testData);
+
+            TryInvokeAllCallbacks(callbacks => callbacks.TestStarted(testsToRun));
         }
 
         public void TestFinished(ITestResult result)
         {
             var testResult = m_AdaptorFactory.Create(result);
-            TestFinished(testResult);
+            TryInvokeAllCallbacks(callbacks => callbacks.TestFinished(testResult));
         }
 
-        public void TestFinished(ITestResultAdaptor testResult)
+        public void TestFinishedRemotely(byte[] testResultsData)
         {
+            var remoteTestResult = Deserialize<RemoteTestResultDataWithTestData>(testResultsData);
+            var testResult = m_AdaptorFactory.Create(remoteTestResult.results.First(), remoteTestResult);
             TryInvokeAllCallbacks(callbacks => callbacks.TestFinished(testResult));
         }
 
@@ -136,11 +144,6 @@ namespace UnityEditor.TestTools.TestRunner.Api
         private static T Deserialize<T>(byte[] data)
         {
             return JsonUtility.FromJson<T>(Encoding.UTF8.GetString(data));
-        }
-
-        public void ClearTestResultCache()
-        {
-            m_AdaptorFactory.ClearResultsCache();
         }
     }
 }

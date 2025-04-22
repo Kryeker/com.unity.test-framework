@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.Scripting;
 
 namespace UnityEngine.TestRunner
 {
@@ -42,7 +43,7 @@ namespace UnityEngine.TestRunner
     ///}
     /// ]]>
     /// </code>
-    /// > Note: The `TestRunCallback` does not need any references to the `UnityEditor` namespace and can run in standalone Players on the Player side.
+    /// <para>> Note: The `TestRunCallback` does not need any references to the `UnityEditor` namespace and can run in standalone Players on the Player side.</para>
     /// </example>
     [AttributeUsage(AttributeTargets.Assembly)]
     public class TestRunCallbackAttribute : Attribute
@@ -59,7 +60,9 @@ namespace UnityEngine.TestRunner
             var interfaceType = typeof(ITestRunCallback);
             if (!interfaceType.IsAssignableFrom(type))
             {
-                throw new ArgumentException(string.Format("Type provided to {0} does not implement {1}", this.GetType().Name, interfaceType.Name));
+                throw new ArgumentException(string.Format(
+                    "Type {2} provided to {0} does not implement {1}. If the stripping level is set to high, the implementing class should have the {3}.",
+                    GetType().Name, interfaceType.Name, type.Name, typeof(PreserveAttribute).Name));
             }
             m_Type = type;
         }

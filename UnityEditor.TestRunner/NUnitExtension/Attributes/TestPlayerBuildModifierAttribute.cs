@@ -3,6 +3,7 @@ using System;
 namespace UnityEditor.TestTools
 {
     /// <summary>
+    /// <para>
     /// You can use the ```TestPlayerBuildModifier``` attribute to accomplish a couple of different scenarios.
     /// ## Modify the Player build options for Play Mode tests
     ///
@@ -12,8 +13,7 @@ namespace UnityEditor.TestTools
     ///
     /// * Implement the `ITestPlayerBuildModifier`
     /// * Reference the implementation type in a `TestPlayerBuildModifier` attribute on an assembly level.
-    ///
-    /// <example>
+    /// </para>
     /// <code>
     /// using UnityEditor;
     /// using UnityEditor.TestTools;
@@ -33,16 +33,14 @@ namespace UnityEditor.TestTools
     ///     }
     /// }
     /// </code>
-    /// </example>
-    ///
-    ///
+    /// <para>
     /// &gt; **Note:** When building the Player, it includes all `TestPlayerBuildModifier` attributes across all loaded assemblies, independent of the currently used test filter. As the implementation references the `UnityEditor` namespace, the code is typically implemented in an Editor only assembly, as the `UnityEditor` namespace is not available otherwise.
     ///
     /// ## Split build and run
     /// It is possible to use the Unity Editor for building the Player with tests, without [running the tests](./workflow-run-playmode-test-standalone.md). This allows for running the Player on e.g. another machine. In this case, it is necessary to modify the Player to build and implement a custom handling of the test result.
     /// By using `TestPlayerBuildModifier`, you can alter the `BuildOptions` to not start the Player after the build as well as build the Player at a specific location. Combined with [PostBuildCleanup](./reference-setup-and-cleanup.md#prebuildsetup-and-postbuildcleanup), you can automatically exit the Editor on completion of the build.
-    ///
-    ///
+    /// </para>
+    /// </summary>
     /// <example>
     /// <code>
     /// using System;
@@ -99,25 +97,28 @@ namespace UnityEditor.TestTools
     ///     }
     /// }
     /// </code>
-    /// </example>
-    ///
+    /// <para>
     /// If the Editor is still running after the Play Mode tests have run, the Player tries to report the results back, using [PlayerConnection](https://docs.unity3d.com/ScriptReference/Networking.PlayerConnection.PlayerConnection.html), which has a reference to the IP address of the Editor machine, when built.
     ///
     /// To implement a custom way of reporting the results of the test run, let one of the assemblies in the Player include a `TestRunCallbackAttribute`. At `RunFinished`, it is possible to get the full test report as XML from the [NUnit](http://www.nunit.org/) test result by calling `result.ToXml(true)`. You can save the result and then save it on the device or send it to another machine as needed.
-    ///
-    /// </summary>
+    /// </para>
+    /// </example>
     [AttributeUsage(AttributeTargets.Assembly)]
     public class TestPlayerBuildModifierAttribute : Attribute
     {
         private Type m_Type;
 
+        /// <summary>
+        /// Initializes and returns an instance of TestPlayerBuildModifierAttribute or throws an <see cref="ArgumentException"/>.
+        /// </summary>
         /// <param name="type">A target type that implements ITestPlayerBuildModifier.</param>
+        /// <exception cref="ArgumentException">Throws a <see cref="ArgumentException"/> if the type provided does not implemented the `ITestPlayerBuildModifier` interface. </exception>
         public TestPlayerBuildModifierAttribute(Type type)
         {
             var interfaceType = typeof(ITestPlayerBuildModifier);
             if (!interfaceType.IsAssignableFrom(type))
             {
-                throw new ArgumentException(string.Format("Type provided to {0} does not implement {1}", this.GetType().Name, interfaceType.Name));
+                throw new ArgumentException(string.Format("Type provided to {0} does not implement {1}", GetType().Name, interfaceType.Name));
             }
             m_Type = type;
         }

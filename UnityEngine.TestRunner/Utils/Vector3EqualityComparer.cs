@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-
 
 namespace UnityEngine.TestTools.Utils
 {
@@ -8,8 +8,8 @@ namespace UnityEngine.TestTools.Utils
     /// </summary>
     public class Vector3EqualityComparer : IEqualityComparer<Vector3>
     {
-        internal const float k_DefaultError = 0.0001f;
-        internal readonly float AllowedError;
+        private const float k_DefaultError = 0.0001f;
+        private readonly float AllowedError;
 
         private static readonly Vector3EqualityComparer m_Instance = new Vector3EqualityComparer();
 
@@ -26,7 +26,7 @@ namespace UnityEngine.TestTools.Utils
         /// <param name="allowedError">This value identifies the calculation error allowed.</param>
         public Vector3EqualityComparer(float allowedError)
         {
-            this.AllowedError = allowedError;
+            AllowedError = allowedError;
         }
 
         ///<summary>
@@ -37,7 +37,7 @@ namespace UnityEngine.TestTools.Utils
         /// <param name="actual">The actual Vector3 to test</param>
         /// <returns>True if the vectors are equals, false otherwise.</returns>
         /// <example>
-        /// The following example shows how to verify if two Vector3 are equals
+        /// <para>The following example shows how to verify if two Vector3 are equals</para>
         /// <code>
         /// [TestFixture]
         /// public class Vector3Test

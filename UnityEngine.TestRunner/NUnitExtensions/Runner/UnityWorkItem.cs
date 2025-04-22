@@ -15,7 +15,7 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
         protected readonly WorkItemFactory m_Factory;
         protected bool m_ExecuteTestStartEvent;
         protected bool m_DontRunRestoringResult;
-        protected const int k_DefaultTimeout = 1000 * 180;
+        protected internal const int k_DefaultTimeout = 1000 * 180;
         public event EventHandler Completed;
 
         public bool ResultedInDomainReload { get; internal set; }
@@ -38,20 +38,20 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
             Result = test.MakeTestResult();
             State = WorkItemState.Ready;
             m_ExecuteTestStartEvent = ShouldExecuteStartEvent();
-            m_DontRunRestoringResult = TestHasAlreadyExecuted(test);
+            m_DontRunRestoringResult = ShouldRestore(test);
         }
 
-        protected static bool TestHasAlreadyExecuted(ITest loadedTest)
+        protected static bool ShouldRestore(ITest loadedTest)
         {
             return UnityWorkItemDataHolder.alreadyExecutedTests != null &&
-                UnityWorkItemDataHolder.alreadyExecutedTests.Contains(loadedTest.GetUniqueName());
+                   UnityWorkItemDataHolder.alreadyExecutedTests.Contains(loadedTest.GetUniqueName());
         }
 
         protected bool ShouldExecuteStartEvent()
         {
             return UnityWorkItemDataHolder.alreadyStartedTests != null &&
-                UnityWorkItemDataHolder.alreadyStartedTests.All(x => x != Test.GetUniqueName()) &&
-                !TestHasAlreadyExecuted(Test);
+                   UnityWorkItemDataHolder.alreadyStartedTests.All(x => x != Test.GetUniqueName()) &&
+                   !ShouldRestore(Test);
         }
 
         protected abstract IEnumerable PerformWork();
@@ -59,6 +59,11 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
         public void InitializeContext(UnityTestExecutionContext context)
         {
             Context = context;
+
+            if (Context.TestCaseTimeout == 0)
+            {
+                Context.TestCaseTimeout = k_DefaultTimeout;
+            }
 
             if (Test is TestAssembly)
                 Actions.AddRange(ActionsHelper.GetActionsFromTestAssembly((TestAssembly)Test));
@@ -70,8 +75,8 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 
         public virtual IEnumerable Execute()
         {
-            Context.CurrentTest = this.Test;
-            Context.CurrentResult = this.Result;
+            Context.CurrentTest = Test;
+            Context.CurrentResult = Result;
 
             if (m_ExecuteTestStartEvent)
             {
@@ -99,16 +104,20 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 
             //Result.AssertCount += Context.AssertCount;
 
-            if (!TestHasAlreadyExecuted(Test))
-            {
-                Context.Listener.TestFinished(Result);
-            }
+            Context.Listener.TestFinished(Result);
 
             if (Completed != null)
                 Completed(this, EventArgs.Empty);
 
             Context.TestObject = null;
             Test.Fixture = null;
+
+            // Reset the states, in case of errors in the middle of their execution. E.g. Timeout.
+            if (!Test.IsSuite)
+            {
+                Context.SetUpTearDownState.Reset();
+                Context.OuterUnityTestActionState.Reset();
+            }
         }
 
         public virtual void Cancel(bool force)

@@ -1,4 +1,4 @@
-using System.Linq;
+using System;
 using TestRunner.Callbacks;
 using UnityEditor.TestTools.TestRunner.Api;
 
@@ -9,15 +9,15 @@ namespace UnityEditor.TestTools.TestRunner.GUI
         public WindowResultUpdater()
         {
             var cachedResults = WindowResultUpdaterDataHolder.instance.CachedResults;
-            var testList = TestRunnerWindow.s_Instance.m_TestListGUI;
+            var testList = TestRunnerWindow.s_Instance.m_SelectedTestTypes;
             foreach (var result in cachedResults)
             {
                 testList.UpdateResult(result);
             }
 
             cachedResults.Clear();
-        }
 
+        }
         public void RunStarted(ITestAdaptor testsToRun)
         {
         }
@@ -27,7 +27,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI
             if (TestRunnerWindow.s_Instance != null)
             {
                 TestRunnerWindow.s_Instance.RebuildUIFilter();
-                TestRunnerWindow.s_Instance.m_TestListGUI.RunFinished(testResults);
+                TestRunnerWindow.s_Instance.m_SelectedTestTypes.RunFinished(testResults);
             }
         }
 
@@ -44,7 +44,8 @@ namespace UnityEditor.TestTools.TestRunner.GUI
                 return;
             }
 
-            TestRunnerWindow.s_Instance.m_TestListGUI.UpdateResult(result);
+            TestRunnerWindow.s_Instance.m_SelectedTestTypes.UpdateResult(result);
+            TestRunnerWindow.s_Instance.Repaint();
         }
     }
 }

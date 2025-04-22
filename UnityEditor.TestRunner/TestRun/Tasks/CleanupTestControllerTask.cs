@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine.TestTools.TestRunner;
 
@@ -13,13 +14,12 @@ namespace UnityEditor.TestTools.TestRunner.TestRun.Tasks
 
         public override IEnumerator Execute(TestJobData testJobData)
         {
-            if (!testJobData.HasPlaymodeTestsController)
+            if (testJobData.PlaymodeTestsController == null)
             {
                 yield break;
             }
-
-            PlaymodeTestsController.ActiveController.Cleanup();
-            testJobData.HasPlaymodeTestsController = false;
+            
+            testJobData.PlaymodeTestsController.Cleanup();
         }
     }
 }

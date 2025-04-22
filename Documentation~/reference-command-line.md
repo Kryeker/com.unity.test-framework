@@ -1,6 +1,14 @@
-# Test Framework command line arguments
+# Running tests from the command line
 
-This section lists the Unity Test Framework command line arguments for Unity. For an example command to run tests on the command line, see [Running tests from the command line](./workflow-run-test.md#running-tests-from-the-command-line).
+It’s pretty simple to run a test project from the command line. Here is an example in Windows:
+
+```bash
+Unity.exe -runTests -batchmode -projectPath PATH_TO_YOUR_PROJECT -testResults C:\temp\results.xml -testPlatform PS4
+```
+
+> **Note**: Use the `-batchmode` option when running tests on the command line to remove the need for manual user inputs. For more information, see Unity [Command line arguments](https://docs.unity3d.com/Manual/CommandLineArguments.html).
+
+## Test Framework command line arguments
 
 ### forgetProjectPath
 
@@ -8,47 +16,33 @@ Don't save your current **Project** into the Unity launcher/hub history.
 
 ### runTests
 
-Runs tests in the Project. This argument is required to run any tests.
+Runs tests in the Project.
 
 ### testCategory
 
-A semicolon-separated list of test categories to include in the run. A semi-colon separated list should be formatted as a string enclosed in quotation marks, e.g. `testCategory "firstCategory;secondCategory"`. If using both `testFilter` and `testCategory`, then only test that matches both are run. This argument supports negation using '!'. If using '!MyCategory' then no tests with the 'MyCategory' category will be included in the run.
+A semicolon-separated list of test categories to include in the run, or a regular expression pattern to match category names. A semi-colon separated list should be formatted as a string enclosed in quotation marks, e.g. `testCategory "firstCategory;secondCategory"`. If using both `testFilter` and `testCategory`, then only tests that match both are run. This argument supports negation using '!'. If using '!MyCategory' then no tests with the 'MyCategory' category will be included in the run.
 
 ### testFilter
 
 A semicolon-separated list of test names to run, or a regular expression pattern to match tests by their full name. A semi-colon separated list should be formatted as a string enclosed in quotation marks, e.g. `testFilter "Low;Medium"`. This argument supports negation using '!'. If using the test filter '!MyNamespace.Something.MyTest', then all tests except that test will be run.
+It is also possible to run a specific variation of a parameterized test like so: `"ClassName\.MethodName\(Param1,Param2\)"`
 
 ### testPlatform
 
-The platform to run tests on. Accepted values:
+The platform to run tests on. Accepted values: 
 
 * **EditMode**
-    * Edit Mode tests. Equivalent to running tests with the **Run Location > In Editor ** option and only the **EditMode* checkbox selected in the Test Runner window.
+    * Edit Mode tests. Equivalent to running tests from the EditMode tab of the Test Runner window.
 * **PlayMode**
-    * Play Mode tests that run in the Editor. Equivalent to running tests with the **Run Location > In Editor** options and only the **PlayMode** checkbox selected in the Test Runner window.
+    * Play Mode tests that run in the Editor. Equivalent to running tests from the PlayMode tab of the Test Runner window.
 * Any value from the [BuildTarget](https://docs.unity3d.com/ScriptReference/BuildTarget.html) enum.
-    * Play Mode tests that run on a player built for the specified platform. Equivalent to using the **Run Location > On Player (`<target_platform>`)** option in the Test Runner window.
+    * Play Mode tests that run on a player built for the specified platform. Equivalent to using the **Run all tests (`<target_platform>`)** dropdown in the PlayMode tab of the Test Runner window.
 
 > **Note**: If no value is specified for this argument, tests run in Edit Mode.
-
-### requiresPlayMode
-
-Filers whether to run tests that require Play Mode.
-* requiresPlayMode=true runs all tests that require Play Mode.
-* requiresPlayMode=false runs all tests that do not require Play Mode.
-* not specifying the parameters runs tests regardless of whether they require Play Mode or not.
-
-### assemblyType
-
-Filters the tests on an assembly type. Either **EditorOnly** or **EditorAndPlatforms**.
 
 ### assemblyNames
 
 A semicolon-separated list of test assemblies to include in the run. A semi-colon separated list should be formatted as a string enclosed in quotation marks, e.g. `assemblyNames "firstAssembly;secondAssembly"`.
-
-### testNames
-
-A semicolon-separeted list of full name of the tests to match the filter. This is usually in the format FixtureName.TestName. If the test has test arguments, then include them in parenthesis. e.g. `MyTestClass2.MyTestWithMultipleValues(1)`.
 
 ### testResults
 
@@ -64,60 +58,50 @@ If included, the test run will run tests synchronously, guaranteeing that all te
 
 ### testSettingsFile 
 
-Path to a *TestSettings.json* file that allows you to set up extra options for your test run. An example of the *TestSettings.json* file could look like this:
+Path to a [TestSettings.json](./reference-test-settings-file.md) file.
 
-```json
-{
-  "scriptingBackend":"WinRTDotNET",
-  "Architecture":null,
-  "apiProfile":0
-}
+### orderedTestListFile
+
+Path to a *.txt* file (which can have any name as long as the format is text) which contains a list of full test names you want to run in the specified order. The tests should be seperated by new lines and if they have parameters, these should be specified as well. The following is an example of the content of such a file:
+
+```
+Unity.Framework.Tests.OrderedTests.NoParameters
+Unity.Framework.Tests.OrderedTests.ParametrizedTestA(3,2)
+Unity.Framework.Tests.OrderedTests.ParametrizedTestB("Assets/file.fbx")
+Unity.Framework.Tests.OrderedTests.ParametrizedTestC(System.String[],"foo.fbx")
+Unity.Framework.Tests.OrderedTests.ParametrizedTestD(1.0f)
+Unity.Framework.Tests.OrderedTests.ParametrizedTestE(null)
+Unity.Framework.Tests.OrderedTests.ParametrizedTestF(False, 1)
+Unity.Framework.Tests.OrderedTests.ParametrizedTestG(float.NaN)
+Unity.Framework.Tests.OrderedTests.ParametrizedTestH(SomeEnum)
 ```
 
-#### apiProfile
+### randomOrderSeed
+An integer different from 0 that set the seed to randomize the tests in the project, indipendetly from the fixture. 
+```
+# normal order 
+Test_1 
+Test_2 
+Test_3 
+Test_4
+# randomized with seed x 
+Test_3 
+Test_1 
+Test_4 
+Test_2
+# randomized with same seed x and a new test 
+Test_3 
+Test_5
+Test_1 
+Test_4 
+Test_2
+```
 
-The .Net compatibility level. Set to one of the following values:  
 
-- 1 - .Net 2.0 
-- 2 - .Net 2.0 Subset 
-- 3 - .Net 4.6 
-- 5 - .Net micro profile (used by Mono scripting backend if **Stripping Level** is set to **Use micro mscorlib**) 
-- 6 - .Net Standard 2.0 
+### retry
 
-#### appleEnableAutomaticSigning
+An integer that sets the retry count. Failing tests will be retried up to this number of times, or until they succeed, whichever happens first.
 
-Sets option for automatic signing of Apple devices.
+### repeat
 
-#### appleDeveloperTeamID 
-
-Sets the team ID for the apple developer account.
-
-#### architecture
-
-Target architecture for Android. Set to one of the following values: 
-
-* None = 0
-* ARMv7 = 1
-* ARM64 = 2
-* X86 = 4
-* All = 4294967295
-
-#### iOSManualProvisioningProfileType
-
-Set to one of the following values: 
-
-* 0 - Automatic 
-* 1 - Development 
-* 2 - Distribution iOSManualProvisioningProfileID
-
-#### scriptingBackend
-
- Set to one of the following values, which should be given as a string literal enclosed in quotes:
-
-- Mono2x
-- IL2CPP
-- WinRTDotNET
-
-#### playerGraphicsAPI
-
- Set graphics API that will be used during test execution in the player. Value can be any [GraphicsDeviceType](https://docs.unity3d.com/ScriptReference/Rendering.GraphicsDeviceType.html) as a string literal enclosed in quotes. Value will only be set if it is supported on the target platform.
+An integer that set the repeat count. Successful tests will be repeated up to this number of times, or until they fail, whichever happens first.

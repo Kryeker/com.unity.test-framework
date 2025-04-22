@@ -6,7 +6,7 @@ using UnityEditor.Scripting.ScriptCompilation;
 namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
 {
     /// <inheritdoc />
-    class CustomScriptAssemblyMappingFinder : ICustomScriptAssemblyMappingFinder
+    internal class CustomScriptAssemblyMappingFinder : ICustomScriptAssemblyMappingFinder
     {
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException">The provided <paramref name="folderPath" /> string argument is null.</exception>
@@ -27,7 +27,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
         /// </summary>
         /// <param name="scriptPath">The script path to check.</param>
         /// <returns>The associated <see cref="ICustomScriptAssembly" />; null if none.</returns>
-        static ICustomScriptAssembly FindCustomScriptAssemblyFromScriptPath(string scriptPath)
+        private static ICustomScriptAssembly FindCustomScriptAssemblyFromScriptPath(string scriptPath)
         {
             try
             {

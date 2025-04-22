@@ -7,6 +7,8 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Commands;
 using UnityEngine.TestTools;
+using SetUpTearDownCommand = UnityEngine.TestTools.SetUpTearDownCommand;
+using TestActionCommand = UnityEngine.TestTools.TestActionCommand;
 
 namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 {
@@ -63,16 +65,23 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
                 }
             }
 
-            command = new UnityEngine.TestTools.TestActionCommand(command);
-            command = new UnityEngine.TestTools.SetUpTearDownCommand(command);
+            command = new TestActionCommand(command);
 
             if (!testReturnsIEnumerator && !testReturnsTask)
             {
                 command = new ImmediateEnumerableCommand(command);
             }
-
+            
+            command = new SetUpTearDownCommand(command);
+            
             foreach (var wrapper in test.Method.GetCustomAttributes<IWrapSetUpTearDown>(true))
             {
+                if (command is SetUpTearDownCommand && !testReturnsIEnumerator && !testReturnsTask)
+                {
+                    // Ensure that we can use the immediate execute on the setup/teardown
+                    command = new ImmediateEnumerableCommand(command);
+                }
+
                 command = wrapper.Wrap(command);
                 if (command == null)
                 {
@@ -81,7 +90,7 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
                     return new FailCommand(test, ResultState.Failure, message);
                 }
 
-                if (testReturnsIEnumerator && !(command is IEnumerableTestMethodCommand))
+                if ((testReturnsIEnumerator || testReturnsTask) && !(command is IEnumerableTestMethodCommand))
                 {
                     command = TryReplaceWithEnumerableCommand(command);
                     if (command != null)
@@ -98,13 +107,17 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 
             command = new EnumerableSetUpTearDownCommand(command);
             command = new OuterUnityTestActionCommand(command);
-
+            command = new RetryCommand(command);
+            command = new RepeatCommand(command);
+            
             IApplyToContext[] changes = test.Method.GetCustomAttributes<IApplyToContext>(true);
             if (changes.Length > 0)
             {
                 command = new EnumerableApplyChangesToContextCommand(command, changes);
             }
 
+            command = new IgnoreTestCommand(command, test);
+            command = new StrictCheckCommand(command);
             return command;
         }
 
@@ -125,6 +138,8 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
                     return new EnumerableRepeatedTestCommand(command as RepeatAttribute.RepeatedTestCommand);
                 case nameof(RetryAttribute.RetryCommand):
                     return new EnumerableRetryTestCommand(command as RetryAttribute.RetryCommand);
+                case nameof(MaxTimeCommand):
+                    return new EnumerableMaxTimeCommand(command as MaxTimeCommand);
                 default:
                     return null;
             }

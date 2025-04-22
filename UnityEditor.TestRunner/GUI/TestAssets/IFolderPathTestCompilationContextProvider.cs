@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// Provides Test Script compilation context associated with project folder paths.
     /// </summary>
-    interface IFolderPathTestCompilationContextProvider
+    internal interface IFolderPathTestCompilationContextProvider
     {
         /// <summary>
         /// Checks if the provided folder path belongs to a Custom Test Assembly.

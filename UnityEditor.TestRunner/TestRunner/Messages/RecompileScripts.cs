@@ -11,6 +11,7 @@ namespace UnityEngine.TestTools
     {
         /// <summary>
         /// Creates a new instance of the `RecompileScripts` yield instruction.
+        /// </summary>
         /// <example>
         /// <code>
         /// [UnitySetUp]
@@ -25,7 +26,7 @@ namespace UnityEngine.TestTools
         /// }
         /// </code>
         /// </example>
-        /// </summary>
+
         public RecompileScripts() : this(true)
         {
         }
@@ -52,7 +53,7 @@ namespace UnityEngine.TestTools
         /// <summary>
         /// Returns true if the instruction expects a domain reload to occur.
         /// </summary>
-        public bool ExpectDomainReload { get; }
+        public bool ExpectDomainReload { get; private set; }
         /// <summary>
         /// Returns true if the instruction expects the Unity Editor to be in **Play Mode**.
         /// </summary>

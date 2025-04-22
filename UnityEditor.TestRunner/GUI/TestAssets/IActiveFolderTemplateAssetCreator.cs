@@ -5,7 +5,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.TestAssets
     /// <summary>
     /// Provides basic utility methods for creating assets in the active Project Browser folder path.
     /// </summary>
-    interface IActiveFolderTemplateAssetCreator
+    internal interface IActiveFolderTemplateAssetCreator
     {
         /// <summary>
         /// The active Project Browser folder path relative to the root project folder.

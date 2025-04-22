@@ -6,7 +6,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// <summary>
     /// Provides methods for dealing with common enumerator operations.
     /// </summary>
-    static class FlagEnumUtility
+    internal static class FlagEnumUtility
     {
         /// <summary>
         /// Checks for the presence of a flag in a flag enum value.
@@ -63,7 +63,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
         /// </summary>
         /// <typeparam name="T">The enum type.</typeparam>
         /// <exception cref="ArgumentException">Thrown if the underlying type of the enum type parameter is not integer.</exception>
-        static void ValidateUnderlyingType<T>() where T : Enum
+        private static void ValidateUnderlyingType<T>() where T : Enum
         {
             if (Enum.GetUnderlyingType(typeof(T)) != typeof(int))
             {

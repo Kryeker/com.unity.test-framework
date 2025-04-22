@@ -20,20 +20,6 @@ If you have a lot of tests, and you only want to view/run a sub-set of them, you
 
 * Click one of the test result icon buttons in the top right
 
-* Select or deselect the EditMode and PlayMode check boxes to include or exclude tests of that type.
-
-## Running tests from the command line
-
-You can also run a test project from the Unity command line. Here is an example in Windows:
-
-```bash
-Unity.exe -runTests -batchmode -projectPath PATH_TO_YOUR_PROJECT -testResults C:\temp\results.xml -testPlatform PS4
-```
-
-> **Note**: Use the `-batchmode` option when running tests on the command line to remove the need for manual user inputs. For more information, see Unity [Command line arguments](https://docs.unity3d.com/Manual/CommandLineArguments.html).
-
-For the full list of Unity Test Framework command line arguments, see the [command line reference](./reference-command-line.md).
-
 ## Run tests within Rider
 
 It is possible to run unit tests in the Unity Test Framework directly from [JetBrains Rider](https://www.jetbrains.com/rider/). 

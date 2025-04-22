@@ -8,11 +8,11 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
     /// A generic type content provider to be used with the <see cref="SelectionDropDown" /> control.
     /// </summary>
     /// <typeparam name="T">The type of values represented by content elements.</typeparam>
-    class GenericItemContentProvider<T> : ISelectionDropDownContentProvider where T : IEquatable<T>
+    internal class GenericItemContentProvider<T> : ISelectionDropDownContentProvider where T : IEquatable<T>
     {
-        readonly ISelectableItem<T>[] m_Items;
-        readonly Action<T> m_ValueChangedCallback;
-        T m_CurrentValue;
+        private readonly ISelectableItem<T>[] m_Items;
+        private readonly Action<T> m_ValueChangedCallback;
+        private T m_CurrentValue;
 
         /// <summary>
         /// Creates a new instance of the <see cref="GenericItemContentProvider{T}" /> class.
@@ -87,7 +87,7 @@ namespace UnityEditor.TestTools.TestRunner.GUI.Controls
             return ValidateIndexBounds(index) && m_Items[index].Value.Equals(m_CurrentValue);
         }
 
-        bool ValidateIndexBounds(int index)
+        private bool ValidateIndexBounds(int index)
         {
             if (index < 0 || index >= Count)
             {

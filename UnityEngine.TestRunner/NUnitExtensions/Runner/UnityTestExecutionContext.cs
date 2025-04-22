@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using NUnit.Framework;
@@ -21,6 +22,8 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 
         public UnityTestExecutionContext Context { get; private set; }
 
+        public bool Automated { get; set; }
+        
         public Test CurrentTest { get; set; }
         public DateTime StartTime { get; set; }
         public long StartTicks { get; set; }
@@ -70,7 +73,17 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
         public UnityTestExecutionContext()
         {
             UpstreamActions = new List<ITestAction>();
-            CurrentContext = this;
+            SetUpTearDownState = new BeforeAfterTestCommandState();
+            OuterUnityTestActionState = new BeforeAfterTestCommandState();
+            EnumerableTestState = new EnumerableTestState();
+        }
+
+        public UnityTestExecutionContext(BeforeAfterTestCommandState setUpTearDownState,
+            BeforeAfterTestCommandState outerUnityTestActionState, EnumerableTestState enumerableTestState) : this()
+        {
+            SetUpTearDownState = setUpTearDownState;
+            OuterUnityTestActionState = outerUnityTestActionState;
+            EnumerableTestState = enumerableTestState;
         }
 
         public UnityTestExecutionContext(UnityTestExecutionContext other)
@@ -92,7 +105,13 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
 
             CurrentCulture = other.CurrentCulture;
             CurrentUICulture = other.CurrentUICulture;
+            TestMode = other.TestMode;
+            IgnoreTests = other.IgnoreTests;
+            FeatureFlags = other.FeatureFlags;
             CurrentContext = this;
+            Automated = other.Automated;
+            RepeatCount = other.RepeatCount;
+            RetryCount = other.RetryCount;
         }
 
         public TextWriter OutWriter { get; private set; }
@@ -108,6 +127,11 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
         public BeforeAfterTestCommandState SetUpTearDownState { get; set; }
         public BeforeAfterTestCommandState OuterUnityTestActionState { get; set; }
         public EnumerableTestState EnumerableTestState { get; set; }
+        public IgnoreTest[] IgnoreTests { get; set; }
+        public FeatureFlags FeatureFlags { get; set; }
+        public int RetryCount { get; set; }
+        public int RepeatCount { get; set; }
+        public EnumerableTestState RetryRepeatState { get; set; }
 
         internal int AssertCount
         {
@@ -117,6 +141,8 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
             }
         }
 
+        public TestPlatform TestMode { get; set; }
+
         public void IncrementAssertCount()
         {
             _assertCount += 1;
@@ -125,6 +151,12 @@ namespace UnityEngine.TestRunner.NUnitExtensions.Runner
         public void AddFormatter(ValueFormatterFactory formatterFactory)
         {
             throw new NotImplementedException();
+        }
+        
+        public bool HasTimedOut()
+        {
+            return Stopwatch.GetTimestamp() - StartTicks >
+                   TestCaseTimeout * (Stopwatch.Frequency / 1000f);
         }
     }
 }
